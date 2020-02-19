@@ -12,22 +12,20 @@ const dimensions = () => ({
 });
 
 
-const initialization = () => {
-    Renderer.onFailure(console.error);
+Renderer.onFailure(console.error);
 
-    Renderer.onResize(({ canvas }: WebGLRenderingContext) => {
-        const { width, height } = dimensions();
-        canvas.width = width;
-        canvas.height = height;
-    });
+Renderer.onResize(({ canvas }: WebGLRenderingContext) => {
+    const { width, height } = dimensions();
+    canvas.width = width;
+    canvas.height = height;
+});
 
-    Renderer.onSuccess((context: WebGLRenderingContext ) => {
-        
-    });
-
-    Renderer.run(document.createElement('canvas'));
-};
+Renderer.onSuccess((context: WebGLRenderingContext ) => {
+    
+});
 
 
-document.addEventListener('DOMContentLoaded', initialization);
+document.addEventListener('DOMContentLoaded', () => (
+    Renderer.run(document.createElement('canvas'))
+));
 
