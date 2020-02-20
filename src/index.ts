@@ -4,28 +4,31 @@ import './styles/main';
 
 // Modules
 import * as Renderer from './app/renderer';
+import * as WebGL from './app/webgl';
 
 
-const dimensions = () => ({
-    width: innerWidth,
-    height: innerHeight,
-});
+const onSuccess = (context: WebGLRenderingContext) => {
+    window.addEventListener('resize', () => WebGL.resize(context));
+};
 
 
-Renderer.onFailure(console.error);
-
-Renderer.onResize(({ canvas }: WebGLRenderingContext) => {
-    const { width, height } = dimensions();
-    canvas.width = width;
-    canvas.height = height;
-});
-
-Renderer.onSuccess((context: WebGLRenderingContext ) => {
-    
-});
+const onFailure = () => {
+    console.error('Failed to initialize webGL');
+};
 
 
-document.addEventListener('DOMContentLoaded', () => (
-    Renderer.run(document.createElement('canvas'))
-));
+const bootstrap = () => {
+    const context = <WebGLRenderingContext | null>Renderer.context.webgl(
+        document.createElement('canvas')
+    );
 
+    if (context == null) {
+        onFailure();
+    } else {
+        onSuccess(context);
+    }
+};
+
+
+
+document.addEventListener('DOMContentLoaded', bootstrap);

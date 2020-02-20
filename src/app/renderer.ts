@@ -1,56 +1,41 @@
-export type RenderingContext = (
-    WebGLRenderingContext
-    | CanvasRenderingContext2D
-    | ImageBitmapRenderingContext
+export enum Type {
+    CANVAS = '2d',
+    WEBGL = 'webgl',
+    WEBGL_2 = 'webgl',
+    BITMAP = 'bitmaprendering',
+};
+
+
+export type Context = (
+    CanvasRenderingContext2D
+    | WebGLRenderingContext
     | WebGL2RenderingContext
-    | null
+    | ImageBitmapRenderingContext
 );
 
 
-export type RenderingContextFailure = (error: Error) => void;
-export type RenderingContextSuccess = (context: RenderingContext) => void;
-
-
-export interface IRenderingContextInternal {
-    failure: RenderingContextFailure;
-    success: RenderingContextSuccess;
-    resize: any;
-};
-
-
-const internal: IRenderingContextInternal = {
-    failure: console.error,
-    success: console.warn,
-    resize: console.warn,
-};
-
-
-export const onFailure = (callback: RenderingContextFailure): void => {
-    internal.failure = callback;
-};
-
-
-export const onSuccess = (callback: RenderingContextSuccess): void => {
-    internal.success = callback;
-};
-
-
-export const onResize = (callback): void => {
-    internal.resize = callback;
-};
-
-
-export const context = (canvas: HTMLCanvasElement): RenderingContext => (
-    canvas.getContext('webgl')
-    || canvas.getContext('experimental-webgl')
-    || canvas.getContext('moz-webgl')
-    || canvas.getContext('webkit-3d')
+export type Settings = (
+    WebGLContextAttributes
+    | CanvasRenderingContext2DSettings
+    | ImageBitmapRenderingContextSettings
 );
 
 
-export const run = (canvas: HTMLCanvasElement): void => {
-    context(canvas) == null
-        ? internal.failure(new Error('Something went wrong'))
-        : internal.success(context(canvas))
-};
+export type Renderer<T> = (
+    (canvas: HTMLCanvasElement) => T
+);
 
+
+export const makeContext = (type: Type, settings: Settings): Renderer<Context | null> => (
+    (canvas: HTMLCanvasElement): (Context | null) => (
+        canvas.getContext(type, settings)
+    )
+);
+
+
+export const context = {
+    webgl: makeContext(Type.WEBGL, <WebGLContextAttributes>{}),
+    webgl2: makeContext(Type.WEBGL_2, <WebGLContextAttributes>{}),
+    canvas: makeContext(Type.CANVAS, <CanvasRenderingContext2DSettings>{}),
+    bitmap: makeContext(Type.BITMAP, <ImageBitmapRenderingContextSettings>{}),
+};
